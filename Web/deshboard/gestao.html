@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Renova — Gestão de Vendas</title>
+    <link rel="stylesheet" href="adm.css">
+</head>
+
+<body>
+    <header class="admin-topbar">
+        <div class="brand-left">Renova</div>
+        <div class="top-actions"><a class="btn btn-primary" href="index.html">Sair</a></div>
+    </header>
+    <div class="admin-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo"></div>
+                <div class="title">Renova</div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="gestao.html">Gestão de Vendas</a></li>
+                    <li><a href="historico.html">Histórico de Interações</a></li>
+                    <li><a href="tarefas.html">Tarefas e Lembretes</a></li>
+                    <li><a href="relatorios.html">Relatórios</a></li>
+                    <li><a href="acesso.html">Controle de Acesso</a></li>
+                </ul>
+            </nav>
+        </aside>
+
+        <main class="admin-main">
+            <div class="box">
+                <h3>Criar Oportunidade</h3>
+                <form id="formOpp">
+                    <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                        <input name="cliente" placeholder="Nome do cliente" required>
+                        <input name="produto" placeholder="Produto/Serviço" required>
+                        <input name="valor" placeholder="Valor (ex: 1500)" required>
+                        <select name="etapa">
+                            <option>Contato inicial</option>
+                            <option>Negociação</option>
+                            <option>Proposta enviada</option>
+                            <option>Fechamento</option>
+                        </select>
+                    </div>
+                    <div style="margin-top:10px"><textarea name="obs" placeholder="Observações"
+                            style="width:100%;min-height:80px"></textarea></div>
+                    <div style="margin-top:10px"><button class="btn btn-primary" type="submit">Salvar</button> <button
+                            type="reset" class="btn btn-ghost">Limpar</button></div>
+                </form>
+            </div>
+
+            <div class="box">
+                <h3>Oportunidades</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Produto</th>
+                            <th>Valor</th>
+                            <th>Etapa</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tbOpp"></tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <script src="admin-common.js"></script>
+    <script>
+        const tbOpp = document.getElementById('tbOpp');
+        const storageKey = 'renova_oportunidades';
+        let ops = JSON.parse(localStorage.getItem(storageKey) || '[]');
+
+        function render() {
+            tbOpp.innerHTML = '';
+            ops.forEach(o => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `<td>${o.cliente}</td><td>${o.produto}</td><td>R$ ${Number(o.valor).toLocaleString('pt-BR')}</td><td>${o.etapa}</td>`;
+                tbOpp.appendChild(tr);
+            });
+        }
+        document.getElementById('formOpp').addEventListener('submit', function (e) {
+            e.preventDefault();
+            const fd = new FormData(e.target);
+            const obj = Object.fromEntries(fd.entries());
+            ops.push(obj);
+            localStorage.setItem(storageKey, JSON.stringify(ops));
+            render();
+            e.target.reset();
+            alert('Oportunidade salva!');
+        });
+        render();
+    </script>
+</body>
+
+</html>

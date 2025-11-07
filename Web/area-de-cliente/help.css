@@ -1,0 +1,177 @@
+:root {
+    --terracota: #ffffff;
+    --black: #0b0b0b;
+    --muted: #9aa5b1;
+    --card: #111213;
+}
+
+* {
+    box-sizing: border-box
+}
+
+body {
+    margin: 0;
+    font-family: Inter, system-ui, Roboto, Arial;
+    background: var(--black);
+    color: #e6e6e6
+}
+
+.panel {
+    max-width: 1000px;
+    margin: 28px auto;
+    padding: 18px;
+    border-radius: 12px;
+    background: #0f1216
+}
+
+.center {
+    padding: 20px
+}
+
+h1,
+h2 {
+    margin: 6px 0 12px 0;
+    color: var(--terracota)
+}
+
+.ticket-create label {
+    display: block;
+    margin-bottom: 8px
+}
+
+.ticket-create input,
+.ticket-create textarea,
+input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: transparent;
+    color: #fff
+}
+
+.form-actions {
+    margin-top: 8px
+}
+
+button {
+    background: var(--terracota);
+    border: none;
+    color: #111;
+    padding: 8px 12px;
+    border-radius: 8px;
+    cursor: pointer
+}
+
+.small {
+    font-size: 13px;
+    color: var(--muted)
+}
+
+/* Chat */
+.chat-wrap {
+    display: flex;
+    flex-direction: column;
+    height: 420px;
+    margin-top: 12px
+}
+
+.chat {
+    flex: 1;
+    overflow: auto;
+    padding: 12px;
+    border-radius: 8px;
+    background: #070708;
+    border: 1px solid rgba(255, 255, 255, 0.02)
+}
+
+.msg {
+    margin-bottom: 10px;
+    max-width: 75%;
+    padding: 8px;
+    border-radius: 10px
+}
+
+.msg.client {
+    align-self: flex-end;
+    background: linear-gradient(180deg, rgba(224, 122, 95, 0.16), rgba(224, 122, 95, 0.06));
+    color: #fff
+}
+
+.msg.admin {
+    align-self: flex-start;
+    background: #1a1b1c;
+    color: #ddd
+}
+
+.meta {
+    font-size: 11px;
+    color: var(--muted);
+    margin-top: 6px
+}
+
+.chat-input {
+    display: flex;
+    gap: 8px;
+    margin-top: 8px
+}
+
+.chat-input input {
+    flex: 1;
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.04);
+    background: transparent;
+    color: #fff
+}
+
+/* Admin layout */
+.admin-wrap {
+    display: flex;
+    gap: 16px
+}
+
+.admin-left {
+    width: 320px
+}
+
+.list {
+    list-style: none;
+    padding: 0;
+    margin-top: 12px
+}
+
+.list li {
+    padding: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+    cursor: pointer
+}
+
+.list li:hover {
+    background: rgba(255, 255, 255, 0.02)
+}
+
+.status-row {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    margin-bottom: 12px
+}
+
+select {
+    padding: 8px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: transparent;
+    color: #fff
+}
+
+@media(max-width:900px) {
+    .admin-wrap {
+        flex-direction: column
+    }
+
+    .admin-left {
+        width: 100%
+    }
+}

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pagamento e Faturas - Renova</title>
+    <link rel="stylesheet" href="pagamento.css">
+    <script src="papgamento.js" defer></script> <!-- Referência ao JS -->
+</head>
+
+<body class="client-dashboard">
+    <div class="sidebar">
+        <div class="logo-container">
+            <img src="logotipo.png" alt="Logo da Academia" class="logo-img">
+            <span class="logo-text">Renova</span>
+        </div>
+        <div class="menu">
+            <a href="index.html" class="menu-item" onclick="navigateTo('home')">Início</a>
+            <a href="perfil.html" class="menu-item" onclick="navigateTo('profile')">Perfil</a>
+            <a href="calendario.html" class="menu-item" onclick="navigateTo('schedule')">Agenda</a>
+            <a href="pagamento.html" class="menu-item" onclick="navigateTo('payment')">Pagamento</a>
+            <a href="suporte.html" class="menu-item" onclick="navigateTo('payment')">Suporte</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="header">
+            <h1 class="dashboard-title">Pagamento e Faturas</h1>
+            <div class="profile">
+                <img src="profile.jpg" alt="Foto do Perfil" class="profile-img">
+            </div>
+        </div>
+
+        <!-- Fatura atual -->
+        <div class="info-section">
+            <h2>Fatura do Mês Atual</h2>
+            <div class="plan-card">
+                <h3>Valor: R$ 99,99</h3>
+                <p>Data de Vencimento: 15/11/2025</p>
+                <!-- Botão de pagamento com redirecionamento -->
+                <button id="payNowBtn" onclick="redirectToPayment()">Pagar</button>
+
+            </div>
+        </div>
+
+        <!-- Relatório de meses passados -->
+        <div class="payment-history">
+            <h2>Relatório de Faturas - Meses Passados</h2>
+            <div class="invoice-report">
+                <div class="month-card">
+                    <span class="month">Ago</span>
+                    <span class="value">R$ 80,00</span>
+                </div>
+                <div class="month-card">
+                    <span class="month">Set</span>
+                    <span class="value">R$ 100,00</span>
+                </div>
+                <div class="month-card">
+                    <span class="month">Out</span>
+                    <span class="value">R$ 90,00</span>
+                </div>
+                <div class="month-card">
+                    <span class="month">Nov</span>
+                    <span class="value">R$ 95,00</span>
+                </div>
+                <div class="month-card">
+                    <span class="month">Dez</span>
+                    <span class="value">R$ 99,00</span>
+                </div>
+            </div>
+        </div>
+
+        <footer class="footer-main">
+            <p>&copy; 2025 Academia Renova. Todos os direitos reservados.</p>
+        </footer>
+    </div>
+</body>
+
+</html>

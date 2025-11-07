@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Renova — Suporte (Cliente)</title>
+  <link rel="stylesheet" href="help.css"/>
+</head>
+<body>
+  <div class="panel center">
+    <h1>Renova — Suporte (Cliente)</h1>
+
+    <div class="ticket-create">
+      <label>Assunto
+        <input id="c-subject" placeholder="Ex: Problema na catraca" />
+      </label>
+      <label>Descrição
+        <textarea id="c-desc" rows="3" placeholder="Descreva seu problema..."></textarea>
+      </label>
+      <div class="form-actions">
+        <button id="c-create">Abrir chamado</button>
+      </div>
+    </div>
+
+    <div class="chat-wrap">
+      <h2 id="c-title">Nenhum chamado aberto</h2>
+      <div id="c-chat" class="chat"></div>
+      <div class="chat-input">
+        <input id="c-msg" placeholder="Digite sua mensagem..." />
+        <button id="c-send">Enviar</button>
+      </div>
+    </div>
+
+    <p class="small">Observação: somente a equipe pode alterar o status do chamado.</p>
+  </div>
+
+  <script src="help.js"></script>
+</body>
+</html>

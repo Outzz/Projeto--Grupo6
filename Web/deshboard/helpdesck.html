@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Renova — Suporte (Admin)</title>
+  <link rel="stylesheet" href="help.css"/>
+</head>
+<body>
+  <div class="panel admin-wrap">
+    <div class="admin-left">
+      <h2>Painel de Chamados (Admin)</h2>
+      <input id="a-search" placeholder="Pesquisar por id, assunto ou cliente..." />
+      <ul id="a-list" class="list"></ul>
+    </div>
+
+    <div class="admin-right">
+      <h2 id="a-title">Selecione um chamado</h2>
+      <div class="status-row">
+        <label>Status
+          <select id="a-status">
+            <option>Aberto</option>
+            <option>Em andamento</option>
+            <option>Aguardando</option>
+            <option>Resolvido</option>
+            <option>Fechado</option>
+          </select>
+        </label>
+        <button id="a-save-status">Salvar status</button>
+      </div>
+
+      <div class="chat-wrap">
+        <div id="a-chat" class="chat"></div>
+        <div class="chat-input">
+          <input id="a-msg" placeholder="Responder ao cliente..." />
+          <button id="a-send">Enviar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="help.js"></script>
+</body>
+</html>

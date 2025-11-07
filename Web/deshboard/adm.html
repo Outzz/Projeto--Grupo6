@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Painel Admin — Sistema de Vendas</title>
+    <link rel="stylesheet" href="adm.css">
+</head>
+
+<body>
+    <div class="app">
+        <!-- sidebar e conteúdo (mesma estrutura do projeto anterior) -->
+        <aside class="sidebar">
+            <div class="brand"><span class="logo"></span> <span>Painel Vendas</span></div>
+            <nav>
+                <ul>
+                    <li><button class="nav-btn active" data-view="dashboard">Dashboard</button></li>
+                    <li><button class="nav-btn" data-view="gestao">Gestão de Vendas</button></li>
+                    <li><button class="nav-btn" data-view="historico">Histórico de Interações</button></li>
+                    <li><button class="nav-btn" data-view="tarefas">Tarefas e Lembretes</button></li>
+                    <li><button class="nav-btn" data-view="relatorios">Relatórios</button></li>
+                    <li><button class="nav-btn" data-view="acesso">Controle de Acesso</button></li>
+                     <li><a href="helpdesk.html">Helpdesk</a></li>
+                </ul>
+            </nav>
+            <hr style="opacity:0.06;margin:16px 0">
+            <div class="small">Usuário: <strong>admin@empresa.com</strong></div>
+            <div class="small" style="margin-top:6px">Último acesso: <span id="lastAccess">--</span></div>
+        </aside>
+
+
+        <main class="content">
+            <div class="topbar">
+                <div style="display:flex;gap:12px;align-items:center">
+                    <div class="search"><input id="globalSearch" placeholder="Buscar leads, tarefas, usuários..."
+                            style="background:transparent;border:0;color:inherit;outline:none;width:100%"></div>
+                    <div class="tag">Ambiente: Produção</div>
+                </div>
+                <div style="display:flex;gap:8px;align-items:center">
+                    <div class="small">Admin</div>
+                    <button class="btn" id="btnNew">+ Novo</button>
+                </div>
+            </div>
+
+
+            <section id="viewContainer">
+                <!-- Views (copie o conteúdo das views do arquivo anterior) -->
+                <!-- Dashboard -->
+                <div class="view" id="view-dashboard">
+                    <div class="cards">
+                        <div class="card">
+                            <h3>Vendas (Mês)</h3>
+                            <p id="vendasMes">0</p>
+                        </div>
+                        <div class="card">
+                            <h3>Leads</h3>
+                            <p id="leadsCount">0</p>
+                        </div>
+                        <div class="card">
+                            <h3>Tarefas Pendentes</h3>
+                            <p id="tasksPending">0</p>
+                        </div>
+                        <div class="card">
+                            <h3>Faturamento</h3>
+                            <p id="faturamento">R$ 0,00</p>
+                        </div>
+                    </div>
+
+
+                    <div class="layout">
+                        <div>
+                            <div class="box" style="margin-bottom:14px">
+                                <h3>Funil de Vendas</h3>
+                                <canvas id="funnelChart" width="600" height="180"></canvas>
+                            </div>
+
+
+                            <div class="box">
+                                <h3>Oportunidades Recentes</h3>
+                                <table id="tableOportunidades">
+                                    <thead>
+                                        <tr>
+                                            <th>Cliente</th>
+                                            <th>Produto</th>
+                                            <th>Valor</th>
+                                            <th>Etapa</th>
+                                            <th>Responsável</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody></tbody>
+                                </table>
+                            </div>
+                        </div>
+
+
+</html>

@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Renova — Dashboard</title>
+    <link rel="stylesheet" href="adm.css">
+</head>
+
+<body>
+    <header class="admin-topbar">
+        <div class="brand-left">Renova</div>
+        <div class="top-actions">
+            <span style="color:var(--muted);margin-right:12px">Admin</span>
+            <a class="btn btn-primary" href="index.html">Sair</a>
+        </div>
+    </header>
+
+    <div class="admin-shell">
+        <aside class="sidebar">
+            <div class="brand">
+                <div class="logo"></div>
+                <div class="title">Renova</div>
+            </div>
+            <nav>
+                <ul>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="gestao.html">Gestão de Vendas</a></li>
+                    <li><a href="historico.html">Histórico de Interações</a></li>
+                    <li><a href="tarefas.html">Tarefas e Lembretes</a></li>
+                    <li><a href="relatorios.html">Relatórios</a></li>
+                    <li><a href="acesso.html">Controle de Acesso</a></li>
+                    <li><a href="helpdesck.html">helpdesck</a></li>
+                </ul>
+            </nav>
+            <div style="margin-top:18px;color:var(--muted);font-size:14px">Usuário: <strong
+                    style="color:var(--text)">admin@renova.com</strong></div>
+        </aside>
+
+        <main class="admin-main">
+            <div class="kpis">
+                <div class="kpi">
+                    <h4>Vendas (Mês)</h4>
+                    <p id="vendasMes">0</p>
+                </div>
+                <div class="kpi">
+                    <h4>Leads</h4>
+                    <p id="leadsCount">0</p>
+                </div>
+                <div class="kpi">
+                    <h4>Tarefas Pendentes</h4>
+                    <p id="tasksPending">0</p>
+                </div>
+                <div class="kpi">
+                    <h4>Faturamento</h4>
+                    <p id="faturamento">R$ 0,00</p>
+                </div>
+            </div>
+
+            <div class="box">
+                <h3>Funil de Vendas</h3>
+                <div style="height:220px;display:flex;align-items:center;justify-content:center;color:var(--muted)">
+                    Gráfico placeholder (implemente com Chart.js)</div>
+            </div>
+
+            <div class="box">
+                <h3>Oportunidades Recentes</h3>
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Produto</th>
+                            <th>Valor</th>
+                            <th>Etapa</th>
+                            <th>Responsável</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableOp"></tbody>
+                </table>
+            </div>
+
+            <footer style="margin-top:24px;color:var(--muted)">© <span id="year"></span> Renova. Todos os direitos
+                reservados.</footer>
+        </main>
+    </div>
+
+    <script src="admin-common.js"></script>
+    <script>
+        // dados de demo no front-end (substitua por API quando tiver backend)
+        const exampleOps = [
+            { cliente: 'Empresa A', produto: 'Software X', valor: 4500, etapa: 'Negociação', responsavel: 'João' },
+            { cliente: 'Cliente B', produto: 'Serviço Y', valor: 1200, etapa: 'Contato inicial', responsavel: 'Maria' }
+        ];
+        const tb = document.getElementById('tableOp');
+        exampleOps.forEach(o => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${o.cliente}</td><td>${o.produto}</td><td>R$ ${o.valor.toLocaleString('pt-BR')}</td><td>${o.etapa}</td><td>${o.responsavel}</td>`;
+            tb.appendChild(tr);
+        });
+        document.getElementById('leadsCount').innerText = exampleOps.length;
+        document.getElementById('faturamento').innerText = 'R$ ' + exampleOps.reduce((s, x) => s + x.valor, 0).toLocaleString('pt-BR');
+        document.getElementById('year').innerText = new Date().getFullYear();
+    </script>
+</body>
+
+</html>

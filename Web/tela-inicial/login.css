@@ -1,0 +1,241 @@
+/* ====== GERAL ====== */
+body {
+  background-color: #000;
+  color: white;
+  font-family: Arial, sans-serif;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* ====== CABEÇALHO ====== */
+header {
+  width: 100%;
+  background-color: #1c1c1c;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 60px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  z-index: 10;
+}
+
+.logo {
+  color: #ffffff;
+  font-weight: bold;
+  font-size: 22px;
+}
+
+nav a {
+  color: #e0e0e0;
+  text-decoration: none;
+  margin-left: 25px;
+  font-size: 16px;
+  transition: color 0.3s;
+}
+
+nav a:hover,
+nav a.active {
+  color: #d86f52;
+}
+
+/* ====== CONTEÚDO PRINCIPAL ====== */
+main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 120px; /* espaço para o menu fixo */
+}
+
+/* ====== CONTAINER LOGIN ====== */
+.login-container {
+  background-color: #111;
+  padding: 40px 50px;
+  border-radius: 15px;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+  width: 420px;
+  text-align: center;
+}
+
+h2 {
+  margin-bottom: 20px;
+}
+
+/* ====== CAMPOS ====== */
+input[type="email"],
+input[type="password"] {
+  width: 100%;
+  padding: 12px;
+  border-radius: 20px;
+  border: none;
+  margin-bottom: 20px;
+  text-align: center;
+  font-size: 15px;
+}
+
+/* ====== BOTÃO E CHECKBOX ====== */
+.login-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+button {
+  background-color: #d86f52;
+  color: white;
+  border: none;
+  padding: 10px 25px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+}
+
+button:hover {
+  background-color: #b8573e;
+}
+
+label {
+  font-size: 14px;
+  color: #ccc;
+}
+
+/* ====== LINKS ====== */
+.register, .forgot {
+  font-size: 14px;
+}
+
+a {
+  color: #9370db;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+/* ====== RODAPÉ ====== */
+footer {
+  background-color: #000;
+  text-align: center;
+  padding: 15px;
+  color: #ccc;
+  font-size: 13px;
+  margin-top: auto;
+}
+
+/* ====== CONTEÚDO PRINCIPAL ====== */
+main {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding-top: 120px;
+}
+
+/* ====== AGRUPAMENTO LOGIN + IMAGEM ====== */
+.login-content {
+  display: flex;
+  align-items: stretch; /* faz os dois terem a mesma altura */
+  justify-content: center;
+  background-color: #111;
+  border-radius: 15px;
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.1);
+  overflow: hidden; /* remove cantos visíveis entre os blocos */
+}
+
+/* ====== IMAGEM ====== */
+.login-image img {
+  width: 400px;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* ====== CONTAINER DO LOGIN ====== */
+.login-container {
+  background-color: #111;
+  padding: 40px 50px;
+  width: 420px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  border-left: 1px solid rgba(255,255,255,0.05); /* linha sutil entre imagem e login */
+}
+
+.login-container {
+  background: linear-gradient(to right, #111 70%, #0d0d0d);
+}
+
+/* Rodapé */
+footer {
+  background-color: #0d0d0d;
+  color: white;
+  text-align: center;
+  padding: 15px;
+  margin-top: 40px;
+  font-size: 14px;
+}
+
+.footer-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.instagram-link {
+  text-decoration: none;
+  color: white;
+  display: flex;
+  align-items: center;
+}
+
+.instagram-icon {
+  width: 24px;
+  height: 24px;
+  transition: transform 0.2s ease, opacity 0.2s ease;
+}
+
+.instagram-icon:hover {
+  transform: scale(1.1);
+  opacity: 0.8;
+}
+
+/* Logo + texto */
+.logo-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-img {
+  width: 40px;      /* Ajuste o tamanho conforme sua logo */
+  height: 40px;
+  object-fit: contain;
+}
+
+.logo-text {
+  font-size: 24px;
+  color: #ffffff;
+  font-weight: bold;
+}
+
+/* Menu */
+header nav a {
+  margin-left: 20px;
+  text-decoration: none;
+  color: #fff;
+  transition: color 0.3s;
+}
+
+header nav a:hover {
+  color: #e07b5a;
+}
