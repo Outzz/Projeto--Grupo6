@@ -1,58 +1,22 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, UserX } from 'lucide-react';
-
-interface User {
-  id: string;
-  name: string;
-  role: string;
-  permission: 'vendedor' | 'gestor' | 'admin';
-  createdAt: string;
-  lastAccess: string;
-  status: 'ativa' | 'suspensa';
-}
-
-const mockUsers: User[] = [
-  {
-    id: '1',
-    name: 'Carlos Vendedor',
-    role: 'Vendedor',
-    permission: 'vendedor',
-    createdAt: '01/01/2024',
-    lastAccess: '20/01/2025',
-    status: 'ativa',
-  },
-  {
-    id: '2',
-    name: 'Ana Gestora',
-    role: 'Gerente de Vendas',
-    permission: 'gestor',
-    createdAt: '01/06/2023',
-    lastAccess: '21/01/2025',
-    status: 'ativa',
-  },
-  {
-    id: '3',
-    name: 'João Admin',
-    role: 'Administrador',
-    permission: 'admin',
-    createdAt: '01/01/2023',
-    lastAccess: '22/01/2025',
-    status: 'ativa',
-  },
-  {
-    id: '4',
-    name: 'Pedro Vendedor',
-    role: 'Vendedor',
-    permission: 'vendedor',
-    createdAt: '15/09/2024',
-    lastAccess: '10/01/2025',
-    status: 'suspensa',
-  },
-];
+import { UserModal } from '@/components/admin/UserModal';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const getPermissionColor = (permission: string) => {
   const colors: Record<string, string> = {
@@ -64,7 +28,66 @@ const getPermissionColor = (permission: string) => {
 };
 
 export default function Users() {
-  const [users] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<any[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<any>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [userToDelete, setUserToDelete] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    loadUsers();
+  }, []);
+
+  const loadUsers = async () => {
+    const { data, error } = await supabase
+      .from('usuarios')
+      .select('*')
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      toast({
+        title: 'Erro ao carregar usuários',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } else {
+      setUsers(data || []);
+    }
+  };
+
+  const handleEdit = (user: any) => {
+    setSelectedUser(user);
+    setModalOpen(true);
+  };
+
+  const handleSuspend = async () => {
+    if (!userToDelete) return;
+
+    const userToUpdate = users.find(u => u.id === userToDelete);
+    const newStatus = userToUpdate?.status === 'ativo' ? 'inativo' : 'ativo';
+
+    const { error } = await supabase
+      .from('usuarios')
+      .update({ status: newStatus })
+      .eq('id', userToDelete);
+
+    if (error) {
+      toast({
+        title: 'Erro ao atualizar status',
+        description: error.message,
+        variant: 'destructive',
+      });
+    } else {
+      toast({ 
+        title: `Usuário ${newStatus === 'inativo' ? 'suspenso' : 'ativado'} com sucesso!` 
+      });
+      loadUsers();
+    }
+
+    setDeleteDialogOpen(false);
+    setUserToDelete(null);
+  };
 
   return (
     <DashboardLayout>
@@ -76,7 +99,13 @@ export default function Users() {
               Gerenciamento de usuários e permissões
             </p>
           </div>
-          <Button className="gap-2">
+          <Button 
+            className="gap-2"
+            onClick={() => {
+              setSelectedUser(null);
+              setModalOpen(true);
+            }}
+          >
             <Plus className="w-4 h-4" />
             Novo Usuário
           </Button>
@@ -90,37 +119,47 @@ export default function Users() {
                   <div className="space-y-3 flex-1">
                     <div className="flex items-start gap-4">
                       <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-lg font-bold">
-                        {user.name.charAt(0)}
+                        {user.nome.charAt(0)}
                       </div>
                       <div>
-                        <h3 className="text-lg font-semibold">{user.name}</h3>
-                        <p className="text-sm text-muted-foreground">{user.role}</p>
+                        <h3 className="text-lg font-semibold">{user.nome}</h3>
+                        <p className="text-sm text-muted-foreground">{user.cargo || 'Sem cargo'}</p>
+                        <p className="text-sm text-muted-foreground">{user.email}</p>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-4 flex-wrap">
-                      <Badge className={getPermissionColor(user.permission)}>
-                        {user.permission.charAt(0).toUpperCase() + user.permission.slice(1)}
+                      <Badge className={getPermissionColor(user.tipo)}>
+                        {user.tipo.charAt(0).toUpperCase() + user.tipo.slice(1)}
                       </Badge>
                       <Badge
-                        variant={user.status === 'ativa' ? 'default' : 'destructive'}
+                        variant={user.status === 'ativo' ? 'default' : 'destructive'}
                       >
-                        {user.status === 'ativa' ? 'Ativo' : 'Suspenso'}
+                        {user.status === 'ativo' ? 'Ativo' : 'Inativo'}
                       </Badge>
                     </div>
 
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>Criado em: {user.createdAt}</span>
-                      <span>•</span>
-                      <span>Último acesso: {user.lastAccess}</span>
+                      <span>Criado em: {new Date(user.created_at).toLocaleDateString('pt-BR')}</span>
                     </div>
                   </div>
 
                   <div className="flex gap-2">
-                    <Button variant="outline" size="icon">
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => handleEdit(user)}
+                    >
                       <Edit className="w-4 h-4" />
                     </Button>
-                    <Button variant="outline" size="icon">
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => {
+                        setUserToDelete(user.id);
+                        setDeleteDialogOpen(true);
+                      }}
+                    >
                       <UserX className="w-4 h-4" />
                     </Button>
                   </div>
@@ -130,6 +169,28 @@ export default function Users() {
           ))}
         </div>
       </div>
+
+      <UserModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        user={selectedUser}
+        onSuccess={loadUsers}
+      />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Alterar status do usuário</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja {users.find(u => u.id === userToDelete)?.status === 'ativo' ? 'suspender' : 'ativar'} este usuário?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleSuspend}>Confirmar</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 }

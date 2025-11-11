@@ -1,70 +1,94 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, Edit, Trash2 } from 'lucide-react';
-
-interface Sale {
-  id: string;
-  client: string;
-  product: string;
-  value: string;
-  stage: string;
-  probability: number;
-  responsible: string;
-  date: string;
-}
-
-const mockSales: Sale[] = [
-  {
-    id: '1',
-    client: 'Maria Santos',
-    product: 'Combo Musculação + Pilates',
-    value: 'R$ 350,00',
-    stage: 'Negociação',
-    probability: 75,
-    responsible: 'Carlos Vendedor',
-    date: '20/01/2025',
-  },
-  {
-    id: '2',
-    client: 'João Oliveira',
-    product: 'Plano Zumba',
-    value: 'R$ 120,00',
-    stage: 'Fechamento',
-    probability: 90,
-    responsible: 'Ana Vendedora',
-    date: '18/01/2025',
-  },
-  {
-    id: '3',
-    client: 'Paula Lima',
-    product: 'Plano Pilates',
-    value: 'R$ 210,00',
-    stage: 'Contato Inicial',
-    probability: 30,
-    responsible: 'Carlos Vendedor',
-    date: '22/01/2025',
-  },
-];
+import { SaleModal } from '@/components/admin/SaleModal';
+import { useToast } from '@/hooks/use-toast';
+import { apiClient } from '@/lib/api-client';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const getStageColor = (stage: string) => {
   const colors: Record<string, string> = {
-    'Contato Inicial': 'bg-blue-500',
-    'Negociação': 'bg-yellow-500',
-    'Fechamento': 'bg-green-500',
+    'em_negociacao': 'bg-yellow-500',
+    'fechado': 'bg-green-500',
+    'perdido': 'bg-red-500',
   };
   return colors[stage] || 'bg-gray-500';
 };
 
+const getStageLabel = (stage: string) => {
+  const labels: Record<string, string> = {
+    'em_negociacao': 'Em Negociação',
+    'fechado': 'Fechado',
+    'perdido': 'Perdido',
+  };
+  return labels[stage] || stage;
+};
+
 export default function Sales() {
-  const [sales] = useState<Sale[]>(mockSales);
+  const [sales, setSales] = useState<any[]>([]);
   const [filter, setFilter] = useState('all');
+  const [modalOpen, setModalOpen] = useState(false);
+  const [selectedSale, setSelectedSale] = useState<any>(null);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [saleToDelete, setSaleToDelete] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    loadSales();
+  }, []);
+
+  const loadSales = async () => {
+    try {
+      const data: any[] = await apiClient.getVendas();
+      setSales(data);
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao carregar vendas',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+  };
+
+  const handleEdit = (sale: any) => {
+    setSelectedSale(sale);
+    setModalOpen(true);
+  };
+
+  const handleDelete = async () => {
+    if (!saleToDelete) return;
+
+    try {
+      await apiClient.deleteVenda(saleToDelete);
+      toast({ title: 'Venda excluída com sucesso!' });
+      loadSales();
+    } catch (error: any) {
+      toast({
+        title: 'Erro ao excluir venda',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
+
+    setDeleteDialogOpen(false);
+    setSaleToDelete(null);
+  };
 
   const filteredSales = filter === 'all' 
     ? sales 
-    : sales.filter(s => s.responsible === filter);
+    : sales.filter(s => s.responsavel === filter);
 
   return (
     <DashboardLayout>
@@ -76,7 +100,13 @@ export default function Sales() {
               Controle de oportunidades e pipeline de vendas
             </p>
           </div>
-          <Button className="gap-2">
+          <Button 
+            className="gap-2"
+            onClick={() => {
+              setSelectedSale(null);
+              setModalOpen(true);
+            }}
+          >
             <Plus className="w-4 h-4" />
             Nova Venda
           </Button>
@@ -94,20 +124,6 @@ export default function Sales() {
                 >
                   Todos
                 </Button>
-                <Button
-                  variant={filter === 'Carlos Vendedor' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setFilter('Carlos Vendedor')}
-                >
-                  Carlos
-                </Button>
-                <Button
-                  variant={filter === 'Ana Vendedora' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setFilter('Ana Vendedora')}
-                >
-                  Ana
-                </Button>
               </div>
             </div>
           </CardHeader>
@@ -120,49 +136,47 @@ export default function Sales() {
                 <div className="flex items-start justify-between">
                   <div className="space-y-3 flex-1">
                     <div>
-                      <h3 className="text-lg font-semibold">{sale.client}</h3>
-                      <p className="text-sm text-muted-foreground">{sale.product}</p>
+                      <h3 className="text-lg font-semibold">{sale.cliente}</h3>
+                      <p className="text-sm text-muted-foreground">{sale.produto}</p>
                     </div>
                     
                     <div className="flex items-center gap-4 flex-wrap">
                       <div className="flex items-center gap-2">
                         <span className="text-sm text-muted-foreground">Valor:</span>
-                        <Badge className="text-base">{sale.value}</Badge>
+                        <Badge className="text-base">R$ {sale.valor.toFixed(2)}</Badge>
                       </div>
                       
                       <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">Etapa:</span>
-                        <Badge className={getStageColor(sale.stage)}>
-                          {sale.stage}
+                        <span className="text-sm text-muted-foreground">Status:</span>
+                        <Badge className={getStageColor(sale.status)}>
+                          {getStageLabel(sale.status)}
                         </Badge>
-                      </div>
-                      
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm text-muted-foreground">Probabilidade:</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-24 h-2 bg-muted rounded-full overflow-hidden">
-                            <div
-                              className="h-full bg-primary"
-                              style={{ width: `${sale.probability}%` }}
-                            />
-                          </div>
-                          <span className="text-sm font-medium">{sale.probability}%</span>
-                        </div>
                       </div>
                     </div>
                     
                     <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                      <span>Responsável: {sale.responsible}</span>
+                      <span>Responsável: {sale.responsavel || 'Não atribuído'}</span>
                       <span>•</span>
-                      <span>Data: {sale.date}</span>
+                      <span>Data: {new Date(sale.created_at).toLocaleDateString('pt-BR')}</span>
                     </div>
                   </div>
                   
                   <div className="flex gap-2">
-                    <Button variant="outline" size="icon">
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => handleEdit(sale)}
+                    >
                       <Edit className="w-4 h-4" />
                     </Button>
-                    <Button variant="outline" size="icon">
+                    <Button 
+                      variant="outline" 
+                      size="icon"
+                      onClick={() => {
+                        setSaleToDelete(sale.id);
+                        setDeleteDialogOpen(true);
+                      }}
+                    >
                       <Trash2 className="w-4 h-4" />
                     </Button>
                   </div>
@@ -172,6 +186,28 @@ export default function Sales() {
           ))}
         </div>
       </div>
+
+      <SaleModal
+        open={modalOpen}
+        onOpenChange={setModalOpen}
+        sale={selectedSale}
+        onSuccess={loadSales}
+      />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tem certeza que deseja excluir esta venda? Esta ação não pode ser desfeita.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDelete}>Excluir</AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </DashboardLayout>
   );
 }
