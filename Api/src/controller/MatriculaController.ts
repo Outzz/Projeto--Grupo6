@@ -4,7 +4,7 @@ import { MatriculaService } from "../service/MatriculaService";
 export function MatriculaController() {
   const service = new MatriculaService();
 
-  app.get("/matriculas", (req, res) => {
+  app.get("/api/matriculas", (req, res) => {
     const matriculas = service.listarMatriculas();
     const matriculasFormatadas = matriculas.map((m) => ({
       id: m.getId(),

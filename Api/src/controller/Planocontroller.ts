@@ -5,7 +5,7 @@ import { Plano, TipoPlano } from "../model/Plano";
 export function PlanoController() {
   const service = new PlanoService();
 
-  app.get("/planos/tipos", (req, res) => {
+  app.get("/api/planos/tipos", (req, res) => {
     const planosDisponiveis = Plano.listarTodosPlanos();
     res.json(planosDisponiveis);
   });
@@ -155,7 +155,8 @@ export function PlanoController() {
     }
 
     return res.status(400).json({
-      mensagem: "Parâmetros de busca inválidos. Use: nome, tipo, ou status (ativo/inativo)",
+      mensagem:
+        "Parâmetros de busca inválidos. Use: nome, tipo, ou status (ativo/inativo)",
     });
   });
 }

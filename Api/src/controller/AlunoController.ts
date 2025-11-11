@@ -4,7 +4,7 @@ import { AlunoService } from "../Api/src/service/AlunoService";
 export function AlunoController() {
   const service = new AlunoService();
 
-  app.get("/alunos", (req, res) => {
+  app.get("/api/alunos", (req, res) => {
     const alunos = service.listarAlunos();
     const alunosSemSenha = alunos.map((aluno) => ({
       id: aluno.getId(),
