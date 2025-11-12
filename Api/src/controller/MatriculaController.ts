@@ -23,11 +23,11 @@ export function MatriculaController() {
   app.post("/matriculas", (req, res) => {
     try {
       const dadosMatricula = req.body;
-      
-      if (typeof dadosMatricula.dataInicio === 'string') {
+
+      if (typeof dadosMatricula.dataInicio === "string") {
         dadosMatricula.dataInicio = new Date(dadosMatricula.dataInicio);
       }
-      
+
       const novaMatricula = service.criarMatricula(dadosMatricula);
       res.status(201).json({
         status: "Matrícula criada com sucesso",
@@ -75,24 +75,24 @@ export function MatriculaController() {
     const receita = service.calcularReceita();
     res.json({
       receitaTotal: receita,
-      matriculasAtivas: service.filtrarMatriculasPorStatus('ativa').length,
+      matriculasAtivas: service.filtrarMatriculasPorStatus("ativa").length,
     });
   });
 
   app.get("/matriculas/relatorios/receita-periodo", (req, res) => {
     const { dataInicio, dataFim } = req.query;
-    
+
     if (!dataInicio || !dataFim) {
-      return res.status(400).json({ 
-        erro: "dataInicio e dataFim são obrigatórios" 
+      return res.status(400).json({
+        erro: "dataInicio e dataFim são obrigatórios",
       });
     }
 
     const inicio = new Date(dataInicio as string);
     const fim = new Date(dataFim as string);
-    
+
     const receita = service.calcularReceitaPorPeriodo(inicio, fim);
-    
+
     res.json({
       periodo: {
         dataInicio: inicio,
@@ -140,7 +140,10 @@ export function MatriculaController() {
     }
 
     // Filtro por status
-    if (status && (status === 'ativa' || status === 'vencida' || status === 'cancelada')) {
+    if (
+      status &&
+      (status === "ativa" || status === "vencida" || status === "cancelada")
+    ) {
       const matriculas = service.filtrarMatriculasPorStatus(status);
       const matriculasFormatadas = matriculas.map((m) => ({
         id: m.getId(),
@@ -158,7 +161,9 @@ export function MatriculaController() {
 
     // Filtro por forma de pagamento
     if (formaPagamento) {
-      const matriculas = service.filtrarMatriculasPorFormaPagamento(formaPagamento as string);
+      const matriculas = service.filtrarMatriculasPorFormaPagamento(
+        formaPagamento as string
+      );
       const matriculasFormatadas = matriculas.map((m) => ({
         id: m.getId(),
         alunoId: m.getAlunoId(),
@@ -192,7 +197,8 @@ export function MatriculaController() {
     }
 
     return res.status(400).json({
-      mensagem: "Parâmetros de busca inválidos. Use: alunoId, planoId, status, formaPagamento, ou vencendoEm",
+      mensagem:
+        "Parâmetros de busca inválidos. Use: alunoId, planoId, status, formaPagamento, ou vencendoEm",
     });
   });
 }

@@ -1,5 +1,5 @@
-import { app } from "../Api/src/server";
-import { AlunoService } from "../Api/src/service/AlunoService";
+import { app } from "../server";
+import { AlunoService } from "../service/AlunoService";
 
 export function AlunoController() {
   const service = new AlunoService();

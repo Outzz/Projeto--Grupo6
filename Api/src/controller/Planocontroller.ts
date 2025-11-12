@@ -1,5 +1,5 @@
 import { app } from "../server";
-import { PlanoService } from "../service/planoService";
+import { PlanoService } from "../service/PlanoService";
 import { Plano, TipoPlano } from "../model/Plano";
 
 export function PlanoController() {

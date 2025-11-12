@@ -1,19 +1,19 @@
-export type TipoPlano = 
-  | "musculacao" 
-  | "zumba" 
-  | "pilates" 
-  | "musculacao+pilates" 
-  | "zumba+pilates" 
+export type TipoPlano =
+  | "musculacao"
+  | "zumba"
+  | "pilates"
+  | "musculacao+pilates"
+  | "zumba+pilates"
   | "musculacao+zumba";
 
 export class Plano {
   private static precos: Record<TipoPlano, number> = {
-    "musculacao": 150,
-    "zumba": 120,
-    "pilates": 210,
+    musculacao: 150,
+    zumba: 120,
+    pilates: 210,
     "musculacao+pilates": 350,
     "zumba+pilates": 299.99,
-    "musculacao+zumba": 200
+    "musculacao+zumba": 200,
   };
 
   constructor(
@@ -31,7 +31,8 @@ export class Plano {
     if (!clienteTelefone) throw new Error("telefone do cliente obrigatório");
     if (!tipoPlano) throw new Error("tipo de plano obrigatório");
     if (clienteNome.length < 3) throw new Error("nome muito curto");
-    if (!this.validarTipoPlano(tipoPlano)) throw new Error("tipo de plano inválido");
+    if (!this.validarTipoPlano(tipoPlano))
+      throw new Error("tipo de plano inválido");
   }
 
   static create(
@@ -43,7 +44,15 @@ export class Plano {
   ) {
     const id = crypto.randomUUID();
     const dataInicio = new Date();
-    return new Plano(id, clienteNome, clienteEmail, clienteTelefone, tipoPlano, duracaoMeses, dataInicio);
+    return new Plano(
+      id,
+      clienteNome,
+      clienteEmail,
+      clienteTelefone,
+      tipoPlano,
+      duracaoMeses,
+      dataInicio
+    );
   }
 
   private validarTipoPlano(tipo: string): boolean {
@@ -57,7 +66,7 @@ export class Plano {
   static listarTodosPlanos(): { tipo: TipoPlano; preco: number }[] {
     return Object.entries(Plano.precos).map(([tipo, preco]) => ({
       tipo: tipo as TipoPlano,
-      preco
+      preco,
     }));
   }
 
