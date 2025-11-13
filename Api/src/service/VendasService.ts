@@ -1,4 +1,4 @@
-import { Venda } from "../model/Venda";
+import { Venda, StatusVenda } from "../model/Venda";
 
 export class VendaService {
   lista: Venda[] = [];
@@ -7,15 +7,15 @@ export class VendaService {
     cliente: string;
     produto: string;
     valor: number;
+    status: StatusVenda;
     responsavel: string;
-    status?: 'em_negociacao' | 'fechado' | 'perdido';
   }): Venda {
     const vendaCreated = Venda.create(
       venda.cliente,
       venda.produto,
       venda.valor,
-      venda.responsavel,
-      venda.status
+      venda.status,
+      venda.responsavel
     );
     this.lista.push(vendaCreated);
     return vendaCreated;
@@ -27,8 +27,8 @@ export class VendaService {
       cliente?: string;
       produto?: string;
       valor?: number;
+      status?: StatusVenda;
       responsavel?: string;
-      status?: 'em_negociacao' | 'fechado' | 'perdido';
     }
   ): Venda {
     const venda = this.lista.find((v) => v.getId() === id);
@@ -39,8 +39,8 @@ export class VendaService {
     if (dados.cliente) venda.setCliente(dados.cliente);
     if (dados.produto) venda.setProduto(dados.produto);
     if (dados.valor !== undefined) venda.setValor(dados.valor);
-    if (dados.responsavel) venda.setResponsavel(dados.responsavel);
     if (dados.status) venda.setStatus(dados.status);
+    if (dados.responsavel) venda.setResponsavel(dados.responsavel);
 
     return venda;
   }
@@ -66,12 +66,14 @@ export class VendaService {
   }
 
   // Métodos de filtro que retornam listas
-  filtrarVendasPorStatus(status: 'em_negociacao' | 'fechado' | 'perdido'): Venda[] {
+  filtrarVendasPorStatus(status: StatusVenda): Venda[] {
     return this.lista.filter((v) => v.getStatus() === status);
   }
 
   filtrarVendasPorResponsavel(responsavel: string): Venda[] {
-    return this.lista.filter((v) => v.getResponsavel() === responsavel);
+    return this.lista.filter((v) => 
+      v.getResponsavel().toLowerCase().includes(responsavel.toLowerCase())
+    );
   }
 
   filtrarVendasPorCliente(cliente: string): Venda[] {
@@ -102,7 +104,7 @@ export class VendaService {
     return this.lista.reduce((total, v) => total + v.getValor(), 0);
   }
 
-  calcularValorTotalPorStatus(status: 'em_negociacao' | 'fechado' | 'perdido'): number {
+  calcularValorTotalPorStatus(status: StatusVenda): number {
     return this.filtrarVendasPorStatus(status)
       .reduce((total, v) => total + v.getValor(), 0);
   }
@@ -117,13 +119,37 @@ export class VendaService {
     return this.calcularValorTotalVendas() / this.lista.length;
   }
 
-  contarVendasPorStatus(status: 'em_negociacao' | 'fechado' | 'perdido'): number {
+  contarVendasPorStatus(status: StatusVenda): number {
     return this.filtrarVendasPorStatus(status).length;
   }
 
   obterVendasRecentes(quantidade: number = 10): Venda[] {
     return [...this.lista]
-      .sort((a, b) => b.getDataCriacao().getTime() - a.getDataCriacao().getTime())
+      .sort((a, b) => b.getCreatedAt().getTime() - a.getCreatedAt().getTime())
       .slice(0, quantidade);
+  }
+
+  // Métodos de negócio
+  fecharVenda(id: string): Venda {
+    const venda = this.buscarVendaPorId(id);
+    venda.fechar();
+    return venda;
+  }
+
+  perderVenda(id: string): Venda {
+    const venda = this.buscarVendaPorId(id);
+    venda.perder();
+    return venda;
+  }
+
+  reabrirVenda(id: string): Venda {
+    const venda = this.buscarVendaPorId(id);
+    venda.reabrir();
+    return venda;
+  }
+
+  calcularComissao(id: string, percentual: number): number {
+    const venda = this.buscarVendaPorId(id);
+    return venda.calcularComissao(percentual);
   }
 }

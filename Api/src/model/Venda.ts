@@ -11,18 +11,12 @@ export class Venda {
     private createdAt: Date = new Date(),
     private updatedAt: Date = new Date()
   ) {
-    if (!cliente || cliente.length < 3) {
-      throw new Error("Nome do cliente deve ter pelo menos 3 caracteres");
-    }
-    if (!produto || produto.length < 3) {
-      throw new Error("Nome do produto deve ter pelo menos 3 caracteres");
-    }
-    if (!valor || valor <= 0) {
-      throw new Error("Valor deve ser maior que zero");
-    }
-    if (!responsavel) {
-      throw new Error("Responsável é obrigatório");
-    }
+    if (!cliente) throw new Error("cliente obrigatório");
+    if (!produto) throw new Error("produto obrigatório");
+    if (!valor || valor <= 0) throw new Error("valor deve ser maior que zero");
+    if (!responsavel) throw new Error("responsável obrigatório");
+    if (cliente.length < 3) throw new Error("nome do cliente muito curto");
+    if (produto.length < 3) throw new Error("nome do produto muito curto");
   }
 
   static create(
@@ -31,12 +25,85 @@ export class Venda {
     valor: number,
     status: StatusVenda,
     responsavel: string
-  ): Venda {
+  ) {
     const id = crypto.randomUUID();
-    return new Venda(id, cliente, produto, valor, status, responsavel);
+    const createdAt = new Date();
+    const updatedAt = new Date();
+    return new Venda(id, cliente, produto, valor, status, responsavel, createdAt, updatedAt);
   }
 
-  // Métodos de negócio
+  // Getters
+  getId(): string {
+    return this.id;
+  }
+
+  getCliente(): string {
+    return this.cliente;
+  }
+
+  getProduto(): string {
+    return this.produto;
+  }
+
+  getValor(): number {
+    return this.valor;
+  }
+
+  getStatus(): StatusVenda {
+    return this.status;
+  }
+
+  getResponsavel(): string {
+    return this.responsavel;
+  }
+
+  getCreatedAt(): Date {
+    return this.createdAt;
+  }
+
+  getUpdatedAt(): Date {
+    return this.updatedAt;
+  }
+
+  // Setters
+  setCliente(cliente: string): void {
+    if (!cliente || cliente.length < 3) {
+      throw new Error("Nome do cliente inválido");
+    }
+    this.cliente = cliente;
+    this.updatedAt = new Date();
+  }
+
+  setProduto(produto: string): void {
+    if (!produto || produto.length < 3) {
+      throw new Error("Nome do produto inválido");
+    }
+    this.produto = produto;
+    this.updatedAt = new Date();
+  }
+
+  setValor(valor: number): void {
+    if (!valor || valor <= 0) {
+      throw new Error("Valor deve ser maior que zero");
+    }
+    this.valor = valor;
+    this.updatedAt = new Date();
+  }
+
+  setStatus(status: StatusVenda): void {
+    this.status = status;
+    this.updatedAt = new Date();
+  }
+
+  setResponsavel(responsavel: string): void {
+    if (!responsavel) {
+      throw new Error("Responsável obrigatório");
+    }
+    this.responsavel = responsavel;
+    this.updatedAt = new Date();
+  }
+
+  // Métodos auxiliares
   fechar(): void {
     if (this.status === 'fechado') {
       throw new Error("Venda já está fechada");
@@ -74,51 +141,15 @@ export class Venda {
     return this.valor * (percentual / 100);
   }
 
-  // Getters
-  getId(): string { return this.id; }
-  getCliente(): string { return this.cliente; }
-  getProduto(): string { return this.produto; }
-  getValor(): number { return this.valor; }
-  getStatus(): StatusVenda { return this.status; }
-  getResponsavel(): string { return this.responsavel; }
-  getCreatedAt(): Date { return this.createdAt; }
-  getUpdatedAt(): Date { return this.updatedAt; }
-
-  // Setters
-  setCliente(cliente: string): void {
-    if (!cliente || cliente.length < 3) {
-      throw new Error("Nome do cliente deve ter pelo menos 3 caracteres");
-    }
-    this.cliente = cliente;
-    this.updatedAt = new Date();
+  isFechada(): boolean {
+    return this.status === 'fechado';
   }
 
-  setProduto(produto: string): void {
-    if (!produto || produto.length < 3) {
-      throw new Error("Nome do produto deve ter pelo menos 3 caracteres");
-    }
-    this.produto = produto;
-    this.updatedAt = new Date();
+  isPerdida(): boolean {
+    return this.status === 'perdido';
   }
 
-  setValor(valor: number): void {
-    if (!valor || valor <= 0) {
-      throw new Error("Valor deve ser maior que zero");
-    }
-    this.valor = valor;
-    this.updatedAt = new Date();
-  }
-
-  setStatus(status: StatusVenda): void {
-    this.status = status;
-    this.updatedAt = new Date();
-  }
-
-  setResponsavel(responsavel: string): void {
-    if (!responsavel) {
-      throw new Error("Responsável é obrigatório");
-    }
-    this.responsavel = responsavel;
-    this.updatedAt = new Date();
+  isEmNegociacao(): boolean {
+    return this.status === 'em_negociacao';
   }
 }
