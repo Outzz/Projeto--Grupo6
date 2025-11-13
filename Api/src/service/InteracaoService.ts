@@ -1,210 +1,226 @@
-import { Interacao } from "../model/Interacao";
+export type TipoInteracao = 'ligacao' | 'email' | 'reuniao' | 'visita' | 'suporte';
+export type StatusInteracao = 'pendente' | 'respondido';
 
-export class InteracaoService {
-  lista: Interacao[] = [];
-
-  criarInteracao(interacao: {
-    data: Date;
-    tipo: 'ligacao' | 'email' | 'reuniao' | 'visita' | 'suporte';
-    responsavel: string;
-    observacoes?: string;
-    resposta?: string;
-    status?: 'pendente' | 'respondido';
-  }): Interacao {
-    const interacaoCreated = Interacao.create(
-      interacao.data,
-      interacao.tipo,
-      interacao.responsavel,
-      interacao.observacoes,
-      interacao.resposta,
-      interacao.status
-    );
-    this.lista.push(interacaoCreated);
-    return interacaoCreated;
+export class Interacao {
+  constructor(
+    private id: string,
+    private data: Date,
+    private tipo: TipoInteracao,
+    private responsavel: string,
+    private observacoes: string,
+    private resposta: string = '',
+    private status: StatusInteracao = 'pendente',
+    private createdAt: Date = new Date(),
+    private updatedAt: Date = new Date()
+  ) {
+    if (!data) throw new Error("data obrigatória");
+    if (!tipo) throw new Error("tipo obrigatório");
+    if (!responsavel) throw new Error("responsável obrigatório");
+    if (!observacoes || observacoes.length < 5) throw new Error("observações devem ter pelo menos 5 caracteres");
+    if (responsavel.length < 3) throw new Error("nome do responsável muito curto");
+    if (!this.validarTipo(tipo)) throw new Error("tipo de interação inválido");
   }
 
-  editarInteracao(
-    id: string,
-    dados: {
-      data?: Date;
-      tipo?: 'ligacao' | 'email' | 'reuniao' | 'visita' | 'suporte';
-      responsavel?: string;
-      observacoes?: string;
-      resposta?: string;
-      status?: 'pendente' | 'respondido';
+  static create(
+    data: Date,
+    tipo: TipoInteracao,
+    responsavel: string,
+    observacoes: string
+  ) {
+    const id = crypto.randomUUID();
+    return new Interacao(id, data, tipo, responsavel, observacoes);
+  }
+
+  private validarTipo(tipo: string): boolean {
+    const tiposValidos: TipoInteracao[] = ['ligacao', 'email', 'reuniao', 'visita', 'suporte'];
+    return tiposValidos.includes(tipo as TipoInteracao);
+  }
+
+  // Getters
+  getId(): string {
+    return this.id;
+  }
+
+  getData(): Date {
+    return this.data;
+  }
+
+  getTipo(): TipoInteracao {
+    return this.tipo;
+  }
+
+  getResponsavel(): string {
+    return this.responsavel;
+  }
+
+  getObservacoes(): string {
+    return this.observacoes;
+  }
+
+  getResposta(): string {
+    return this.resposta;
+  }
+
+  getStatus(): StatusInteracao {
+    return this.status;
+  }
+
+  getCreatedAt(): Date {
+    return this.createdAt;
+  }
+
+  getUpdatedAt(): Date {
+    return this.updatedAt;
+  }
+
+  // Setters
+  setData(data: Date): void {
+    if (!data) {
+      throw new Error("Data obrigatória");
     }
-  ): Interacao {
-    const interacao = this.lista.find((i) => i.getId() === id);
-    if (!interacao) {
-      throw new Error("Interação não encontrada");
+    this.data = data;
+    this.updatedAt = new Date();
+  }
+
+  setTipo(tipo: TipoInteracao): void {
+    if (!this.validarTipo(tipo)) {
+      throw new Error("Tipo de interação inválido");
     }
-
-    if (dados.data) interacao.setData(dados.data);
-    if (dados.tipo) interacao.setTipo(dados.tipo);
-    if (dados.responsavel) interacao.setResponsavel(dados.responsavel);
-    if (dados.observacoes !== undefined) interacao.setObservacoes(dados.observacoes);
-    if (dados.resposta !== undefined) interacao.setResposta(dados.resposta);
-    if (dados.status) interacao.setStatus(dados.status);
-
-    return interacao;
+    this.tipo = tipo;
+    this.updatedAt = new Date();
   }
 
-  listarInteracoes(): Interacao[] {
-    return this.lista;
-  }
-
-  buscarInteracaoPorId(id: string): Interacao {
-    const interacao = this.lista.find((i) => i.getId() === id);
-    if (!interacao) {
-      throw new Error("Interação não encontrada");
+  setResponsavel(responsavel: string): void {
+    if (!responsavel || responsavel.length < 3) {
+      throw new Error("Nome do responsável inválido");
     }
-    return interacao;
+    this.responsavel = responsavel;
+    this.updatedAt = new Date();
   }
 
-  excluirInteracao(id: string): void {
-    const index = this.lista.findIndex((i) => i.getId() === id);
-    if (index === -1) {
-      throw new Error("Interação não encontrada");
+  setObservacoes(observacoes: string): void {
+    if (!observacoes || observacoes.length < 5) {
+      throw new Error("Observações devem ter pelo menos 5 caracteres");
     }
-    this.lista.splice(index, 1);
+    this.observacoes = observacoes;
+    this.updatedAt = new Date();
   }
 
-  // Métodos de filtro que retornam listas
-  filtrarInteracoesPorTipo(tipo: 'ligacao' | 'email' | 'reuniao' | 'visita' | 'suporte'): Interacao[] {
-    return this.lista.filter((i) => i.getTipo() === tipo);
+  setResposta(resposta: string): void {
+    this.resposta = resposta;
+    if (resposta && resposta.trim() !== '') {
+      this.status = 'respondido';
+    }
+    this.updatedAt = new Date();
   }
 
-  filtrarInteracoesPorResponsavel(responsavel: string): Interacao[] {
-    return this.lista.filter((i) =>
-      i.getResponsavel().toLowerCase().includes(responsavel.toLowerCase())
-    );
+  setStatus(status: StatusInteracao): void {
+    this.status = status;
+    this.updatedAt = new Date();
   }
 
-  filtrarInteracoesPorStatus(status: 'pendente' | 'respondido'): Interacao[] {
-    return this.lista.filter((i) => i.getStatus() === status);
+  // Métodos auxiliares
+  responder(resposta: string): void {
+    if (!resposta || resposta.length < 5) {
+      throw new Error("Resposta deve ter pelo menos 5 caracteres");
+    }
+    if (this.status === 'respondido') {
+      throw new Error("Interação já foi respondida");
+    }
+    this.resposta = resposta;
+    this.status = 'respondido';
+    this.updatedAt = new Date();
   }
 
-  filtrarInteracoesPorPeriodo(dataInicio: Date, dataFim: Date): Interacao[] {
-    return this.lista.filter((i) => {
-      const data = i.getData();
-      return data >= dataInicio && data <= dataFim;
-    });
+  reabrir(): void {
+    if (this.status === 'pendente') {
+      throw new Error("Interação já está pendente");
+    }
+    this.status = 'pendente';
+    this.resposta = '';
+    this.updatedAt = new Date();
   }
 
-  filtrarInteracoesPorData(data: Date): Interacao[] {
-    return this.lista.filter((i) => {
-      const dataInteracao = i.getData();
-      return (
-        dataInteracao.getDate() === data.getDate() &&
-        dataInteracao.getMonth() === data.getMonth() &&
-        dataInteracao.getFullYear() === data.getFullYear()
-      );
-    });
+  marcarComoPendente(): void {
+    this.status = 'pendente';
+    this.updatedAt = new Date();
   }
 
-  filtrarInteracoesComResposta(): Interacao[] {
-    return this.lista.filter((i) => i.getResposta() !== null && i.getResposta() !== '');
+  marcarComoRespondido(): void {
+    this.status = 'respondido';
+    this.updatedAt = new Date();
   }
 
-  filtrarInteracoesSemResposta(): Interacao[] {
-    return this.lista.filter((i) => !i.getResposta() || i.getResposta() === '');
+  isPendente(): boolean {
+    return this.status === 'pendente';
   }
 
-  // Métodos de busca específicos
-  buscarInteracoesPorTexto(texto: string): Interacao[] {
-    const textoLower = texto.toLowerCase();
-    return this.lista.filter((i) => {
-      const observacoes = i.getObservacoes()?.toLowerCase() || '';
-      const resposta = i.getResposta()?.toLowerCase() || '';
-      const responsavel = i.getResponsavel().toLowerCase();
-      
-      return (
-        observacoes.includes(textoLower) ||
-        resposta.includes(textoLower) ||
-        responsavel.includes(textoLower)
-      );
-    });
+  isRespondido(): boolean {
+    return this.status === 'respondido';
   }
 
-  // Métodos de estatísticas
-  contarInteracoesPorTipo(tipo: 'ligacao' | 'email' | 'reuniao' | 'visita' | 'suporte'): number {
-    return this.filtrarInteracoesPorTipo(tipo).length;
+  temResposta(): boolean {
+    return this.resposta !== null && this.resposta.trim() !== '';
   }
 
-  contarInteracoesPorStatus(status: 'pendente' | 'respondido'): number {
-    return this.filtrarInteracoesPorStatus(status).length;
+  temObservacoes(): boolean {
+    return this.observacoes !== null && this.observacoes.trim() !== '';
   }
 
-  contarInteracoesPorResponsavel(responsavel: string): number {
-    return this.filtrarInteracoesPorResponsavel(responsavel).length;
+  // Métodos de verificação de tipo
+  isLigacao(): boolean {
+    return this.tipo === 'ligacao';
   }
 
-  obterInteracoesRecentes(quantidade: number = 10): Interacao[] {
-    return [...this.lista]
-      .sort((a, b) => b.getData().getTime() - a.getData().getTime())
-      .slice(0, quantidade);
+  isEmail(): boolean {
+    return this.tipo === 'email';
   }
 
-  obterInteracoesPendentes(): Interacao[] {
-    return this.filtrarInteracoesPorStatus('pendente');
+  isReuniao(): boolean {
+    return this.tipo === 'reuniao';
   }
 
-  obterInteracoesRespondidas(): Interacao[] {
-    return this.filtrarInteracoesPorStatus('respondido');
+  isVisita(): boolean {
+    return this.tipo === 'visita';
   }
 
-  // Métodos de agrupamento
-  agruparInteracoesPorTipo(): Map<string, Interacao[]> {
-    const grupos = new Map<string, Interacao[]>();
-    
-    this.lista.forEach((interacao) => {
-      const tipo = interacao.getTipo();
-      if (!grupos.has(tipo)) {
-        grupos.set(tipo, []);
-      }
-      grupos.get(tipo)!.push(interacao);
-    });
-    
-    return grupos;
+  isSuporte(): boolean {
+    return this.tipo === 'suporte';
   }
 
-  agruparInteracoesPorResponsavel(): Map<string, Interacao[]> {
-    const grupos = new Map<string, Interacao[]>();
-    
-    this.lista.forEach((interacao) => {
-      const responsavel = interacao.getResponsavel();
-      if (!grupos.has(responsavel)) {
-        grupos.set(responsavel, []);
-      }
-      grupos.get(responsavel)!.push(interacao);
-    });
-    
-    return grupos;
+  // Métodos de cálculo
+  tempoDesdeInteracao(): number {
+    const hoje = new Date();
+    const diff = hoje.getTime() - this.data.getTime();
+    return Math.floor(diff / (1000 * 60 * 60 * 24)); // dias
   }
 
-  // Métodos de relatório
-  obterEstatisticas(): {
-    total: number;
-    porTipo: Record<string, number>;
-    porStatus: Record<string, number>;
-    comResposta: number;
-    semResposta: number;
-  } {
-    return {
-      total: this.lista.length,
-      porTipo: {
-        ligacao: this.contarInteracoesPorTipo('ligacao'),
-        email: this.contarInteracoesPorTipo('email'),
-        reuniao: this.contarInteracoesPorTipo('reuniao'),
-        visita: this.contarInteracoesPorTipo('visita'),
-        suporte: this.contarInteracoesPorTipo('suporte'),
-      },
-      porStatus: {
-        pendente: this.contarInteracoesPorStatus('pendente'),
-        respondido: this.contarInteracoesPorStatus('respondido'),
-      },
-      comResposta: this.filtrarInteracoesComResposta().length,
-      semResposta: this.filtrarInteracoesSemResposta().length,
+  // Métodos de formatação
+  getDataFormatada(): string {
+    return this.data.toLocaleDateString('pt-BR');
+  }
+
+  getDataHoraFormatada(): string {
+    return this.data.toLocaleString('pt-BR');
+  }
+
+  getTipoFormatado(): string {
+    const tiposFormatados: Record<TipoInteracao, string> = {
+      ligacao: 'Ligação',
+      email: 'E-mail',
+      reuniao: 'Reunião',
+      visita: 'Visita',
+      suporte: 'Suporte',
     };
+    return tiposFormatados[this.tipo];
+  }
+
+  getStatusFormatado(): string {
+    return this.status === 'pendente' ? 'Pendente' : 'Respondido';
+  }
+
+  // Método para obter resumo da interação
+  getResumo(): string {
+    return `${this.getTipoFormatado()} - ${this.responsavel} - ${this.getDataFormatada()} - ${this.getStatusFormatado()}`;
   }
 }

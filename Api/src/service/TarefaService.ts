@@ -1,87 +1,199 @@
-import { Tarefa } from "../model/Tarefa";
+export type Prioridade = 'baixa' | 'media' | 'alta';
+export type StatusTarefa = 'pendente' | 'em_andamento' | 'concluida';
 
-export class TarefaService {
-  lista: Tarefa[] = [];
-
-  criarTarefa(tarefa: {
-    descricao: string;
-    responsavel?: string;
-    prazo: string;
-    prioridade?: 'baixa' | 'media' | 'alta';
-    status?: 'pendente' | 'em_andamento' | 'concluida';
-  }): Tarefa {
-    const tarefaCreated = Tarefa.create(
-      tarefa.descricao,
-      tarefa.responsavel,
-      tarefa.prazo,
-      tarefa.prioridade,
-      tarefa.status
-    );
-    this.lista.push(tarefaCreated);
-    return tarefaCreated;
-  }
-
-  listarTarefas(): Tarefa[] {
-    return this.lista;
-  }
-
-  buscarTarefaPorId(id: string): Tarefa {
-    const tarefa = this.lista.find((t) => t.getId() === id);
-    if (!tarefa) {
-      throw new Error("Tarefa não encontrada");
+export class Tarefa {
+  constructor(
+    private id: string,
+    private descricao: string,
+    private responsavel: string,
+    private prazo: Date,
+    private prioridade: Prioridade,
+    private status: StatusTarefa = 'pendente',
+    private createdAt: Date = new Date(),
+    private updatedAt: Date = new Date()
+  ) {
+    if (!descricao || descricao.length < 3) {
+      throw new Error("Descrição deve ter pelo menos 3 caracteres");
     }
-    return tarefa;
+    if (!responsavel) {
+      throw new Error("Responsável é obrigatório");
+    }
+    if (!prazo) {
+      throw new Error("Prazo é obrigatório");
+    }
+    if (!prioridade) {
+      throw new Error("Prioridade é obrigatória");
+    }
   }
 
-  editarTarefa(
-    id: string,
-    dados: {
-      descricao?: string;
-      responsavel?: string;
-      prazo?: string;
-      prioridade?: 'baixa' | 'media' | 'alta';
-      status?: 'pendente' | 'em_andamento' | 'concluida';
-    }
+  static create(
+    descricao: string,
+    responsavel: string,
+    prazo: Date,
+    prioridade: Prioridade = 'media'
   ): Tarefa {
-    const tarefa = this.buscarTarefaPorId(id);
-    
-    if (dados.descricao) tarefa.setDescricao(dados.descricao);
-    if (dados.responsavel !== undefined) tarefa.setResponsavel(dados.responsavel);
-    if (dados.prazo) tarefa.setPrazo(dados.prazo);
-    if (dados.prioridade) tarefa.setPrioridade(dados.prioridade);
-    if (dados.status) tarefa.setStatus(dados.status);
-    
-    return tarefa;
+    const id = crypto.randomUUID();
+    return new Tarefa(id, descricao, responsavel, prazo, prioridade);
   }
 
-  deletarTarefa(id: string): void {
-    const index = this.lista.findIndex((t) => t.getId() === id);
-    if (index === -1) {
-      throw new Error("Tarefa não encontrada");
+  // Métodos de negócio
+  iniciar(): void {
+    if (this.status === 'concluida') {
+      throw new Error("Não é possível iniciar uma tarefa concluída");
     }
-    this.lista.splice(index, 1);
+    if (this.status === 'em_andamento') {
+      throw new Error("Tarefa já está em andamento");
+    }
+    this.status = 'em_andamento';
+    this.updatedAt = new Date();
   }
 
-  filtrarTarefasPorStatus(status: 'pendente' | 'em_andamento' | 'concluida'): Tarefa[] {
-    return this.lista.filter((t) => t.getStatus() === status);
+  concluir(): void {
+    if (this.status === 'concluida') {
+      throw new Error("Tarefa já está concluída");
+    }
+    this.status = 'concluida';
+    this.updatedAt = new Date();
   }
 
-  filtrarTarefasPorPrioridade(prioridade: 'baixa' | 'media' | 'alta'): Tarefa[] {
-    return this.lista.filter((t) => t.getPrioridade() === prioridade);
+  reabrir(): void {
+    if (this.status === 'pendente') {
+      throw new Error("Tarefa já está pendente");
+    }
+    this.status = 'pendente';
+    this.updatedAt = new Date();
   }
 
-  filtrarTarefasPorResponsavel(responsavel: string): Tarefa[] {
-    return this.lista.filter((t) => t.getResponsavel() === responsavel);
-  }
-
-  filtrarTarefasVencendo(dias: number): Tarefa[] {
+  estáAtrasada(): boolean {
     const hoje = new Date();
-    const dataLimite = new Date();
-    dataLimite.setDate(hoje.getDate() + dias);
+    return this.prazo < hoje && this.status !== 'concluida';
+  }
 
-    return this.lista.filter((t) => {
-      const prazo = new Date(t.getPrazo());
-      return prazo >= hoje && prazo <= dataLimite && t.getStatus() !== 'concluida';
-    });
+  diasRestantes(): number {
+    const hoje = new Date();
+    const diff = this.prazo.getTime() - hoje.getTime();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  }
+
+  isPendente(): boolean {
+    return this.status === 'pendente';
+  }
+
+  isEmAndamento(): boolean {
+    return this.status === 'em_andamento';
+  }
+
+  isConcluida(): boolean {
+    return this.status === 'concluida';
+  }
+
+  isPrioridadeAlta(): boolean {
+    return this.prioridade === 'alta';
+  }
+
+  isPrioridadeMedia(): boolean {
+    return this.prioridade === 'media';
+  }
+
+  isPrioridadeBaixa(): boolean {
+    return this.prioridade === 'baixa';
+  }
+
+  // Getters
+  getId(): string {
+    return this.id;
+  }
+
+  getDescricao(): string {
+    return this.descricao;
+  }
+
+  getResponsavel(): string {
+    return this.responsavel;
+  }
+
+  getPrazo(): Date {
+    return this.prazo;
+  }
+
+  getPrioridade(): Prioridade {
+    return this.prioridade;
+  }
+
+  getStatus(): StatusTarefa {
+    return this.status;
+  }
+
+  getCreatedAt(): Date {
+    return this.createdAt;
+  }
+
+  getUpdatedAt(): Date {
+    return this.updatedAt;
+  }
+
+  // Setters
+  setDescricao(descricao: string): void {
+    if (!descricao || descricao.length < 3) {
+      throw new Error("Descrição deve ter pelo menos 3 caracteres");
+    }
+    this.descricao = descricao;
+    this.updatedAt = new Date();
+  }
+
+  setResponsavel(responsavel: string): void {
+    if (!responsavel) {
+      throw new Error("Responsável é obrigatório");
+    }
+    this.responsavel = responsavel;
+    this.updatedAt = new Date();
+  }
+
+  setPrazo(prazo: Date): void {
+    if (!prazo) {
+      throw new Error("Prazo é obrigatório");
+    }
+    this.prazo = prazo;
+    this.updatedAt = new Date();
+  }
+
+  setPrioridade(prioridade: Prioridade): void {
+    if (!prioridade) {
+      throw new Error("Prioridade é obrigatória");
+    }
+    this.prioridade = prioridade;
+    this.updatedAt = new Date();
+  }
+
+  setStatus(status: StatusTarefa): void {
+    this.status = status;
+    this.updatedAt = new Date();
+  }
+
+  // Métodos de formatação
+  getPrazoFormatado(): string {
+    return this.prazo.toLocaleDateString('pt-BR');
+  }
+
+  getPrioridadeFormatada(): string {
+    const prioridades: Record<Prioridade, string> = {
+      'baixa': 'Baixa',
+      'media': 'Média',
+      'alta': 'Alta',
+    };
+    return prioridades[this.prioridade];
+  }
+
+  getStatusFormatado(): string {
+    const status: Record<StatusTarefa, string> = {
+      'pendente': 'Pendente',
+      'em_andamento': 'Em Andamento',
+      'concluida': 'Concluída',
+    };
+    return status[this.status];
+  }
+
+  getResumo(): string {
+    return `${this.descricao} - ${this.responsavel} - ${this.getPrazoFormatado()} - ${this.getStatusFormatado()}`;
   }
 }
