@@ -1,134 +1,106 @@
-export type TipoPlano =
-  | "musculacao"
-  | "zumba"
-  | "pilates"
-  | "musculacao+pilates"
-  | "zumba+pilates"
-  | "musculacao+zumba";
+import { Plano } from "./Plano";
 
-export class Plano {
-  private static precos: Record<TipoPlano, number> = {
-    musculacao: 150,
-    zumba: 120,
-    pilates: 210,
-    "musculacao+pilates": 350,
-    "zumba+pilates": 299.99,
-    "musculacao+zumba": 200,
-  };
+export class PlanoService {
+  lista: Plano[] = [];
 
-  constructor(
-    private id: string,
-    private clienteNome: string,
-    private clienteEmail: string,
-    private clienteTelefone: string,
-    private tipoPlano: TipoPlano,
-    private duracaoMeses: number,
-    private dataInicio: Date,
-    private ativo: boolean = true
-  ) {
-    if (!clienteNome) throw new Error("nome do cliente obrigatório");
-    if (!clienteEmail) throw new Error("email do cliente obrigatório");
-    if (!clienteTelefone) throw new Error("telefone do cliente obrigatório");
-    if (!tipoPlano) throw new Error("tipo de plano obrigatório");
-    if (clienteNome.length < 3) throw new Error("nome muito curto");
-    if (!this.validarTipoPlano(tipoPlano))
-      throw new Error("tipo de plano inválido");
-  }
-
-  static create(
-    clienteNome: string,
-    clienteEmail: string,
-    clienteTelefone: string,
-    tipoPlano: TipoPlano,
-    duracaoMeses: number
-  ) {
-    const id = crypto.randomUUID();
-    const dataInicio = new Date();
-    return new Plano(
-      id,
-      clienteNome,
-      clienteEmail,
-      clienteTelefone,
-      tipoPlano,
-      duracaoMeses,
-      dataInicio
+  criarPlano(plano: {
+    clienteNome: string;
+    clienteEmail: string;
+    clienteTelefone: string;
+    duracaoMeses: number;
+  }): Plano {
+    const planoCreated = Plano.create(
+      plano.clienteNome,
+      plano.clienteEmail,
+      plano.clienteTelefone,
+      plano.tipoPlano,
+      plano.duracaoMeses
     );
+    this.lista.push(planoCreated);
+    return planoCreated;
   }
 
-  private validarTipoPlano(tipo: string): boolean {
-    return tipo in Plano.precos;
+  editarPlano(
+    id: string,
+    dados: {
+      clienteNome?: string;
+      clienteEmail?: string;
+      clienteTelefone?: string;
+      duracaoMeses?: number;
+      ativo?: boolean;
+    }
+  ): Plano {
+    const plano = this.buscarPlanoPorId(id);
+    if (!plano) {
+      throw new Error("Plano não encontrado");
+    }
+
+    if (dados.clienteNome) plano.setClienteNome(dados.clienteNome);
+    if (dados.clienteEmail) plano.setClienteEmail(dados.clienteEmail);
+    if (dados.clienteTelefone) plano.setClienteTelefone(dados.clienteTelefone);
+    if (dados.duracaoMeses !== undefined) plano.setDuracaoMeses(dados.duracaoMeses);
+    if (dados.ativo !== undefined) plano.setAtivo(dados.ativo);
+
+    return plano;
   }
 
-  static getPreco(tipoPlano: TipoPlano): number {
-    return Plano.precos[tipoPlano];
+  listarPlanos(): Plano[] {
+    return this.lista;
   }
 
-  static listarTodosPlanos(): { tipo: TipoPlano; preco: number }[] {
-    return Object.entries(Plano.precos).map(([tipo, preco]) => ({
-      tipo: tipo as TipoPlano,
-      preco,
-    }));
+  buscarPlanoPorId(id: string): Plano {
+    const plano = this.lista.find((plano) => plano.getId() === id);
+    if (!plano) {
+      throw new Error("Plano não encontrado");
+    }
+    return plano;
   }
 
-  // Getters
-  getId(): string {
-    return this.id;
+  // NOVO: Deletar plano
+  deletarPlano(id: string): void {
+    const index = this.lista.findIndex((p) => p.getId() === id);
+    if (index === -1) {
+      throw new Error("Plano não encontrado");
+    }
+    this.lista.splice(index, 1);
   }
 
-  getClienteNome(): string {
-    return this.clienteNome;
+  buscarPlanoPorClienteNome(clienteNome: string): Plano | undefined {
+    return this.lista.find((plano) => plano.getClienteNome() === clienteNome);
   }
 
-  getClienteEmail(): string {
-    return this.clienteEmail;
+  buscarPlanoPorClienteEmail(clienteEmail: string): Plano | undefined {
+    return this.lista.find((plano) => plano.getClienteEmail() === clienteEmail);
   }
 
-  getClienteTelefone(): string {
-    return this.clienteTelefone;
+  // Métodos de negócio
+  cancelarPlano(id: string): Plano {
+    const plano = this.buscarPlanoPorId(id);
+    plano.setAtivo(false);
+    return plano;
   }
 
-  getTipoPlano(): TipoPlano {
-    return this.tipoPlano;
+  reativarPlano(id: string): Plano {
+    const plano = this.buscarPlanoPorId(id);
+    plano.setAtivo(true);
+    return plano;
   }
 
-  getDataInicio(): Date {
-    return this.dataInicio;
+  filtrarPlanosAtivos(): Plano[] {
+    return this.lista.filter((plano) => plano.getAtivo() === true);
   }
 
-  getDuracaoMeses(): number {
-    return this.duracaoMeses;
+  filtrarPlanosInativos(): Plano[] {
+    return this.lista.filter((plano) => plano.getAtivo() === false);
   }
 
-  getAtivo(): boolean {
-    return this.ativo;
+  filtrarPlanosPorDuracao(duracaoMeses: number): Plano[] {
+    return this.lista.filter((plano) => plano.getDuracaoMeses() === duracaoMeses);
   }
 
-  getPrecoMensal(): number {
-    return Plano.precos[this.tipoPlano];
-  }
-
-  // Setters
-  setClienteNome(nome: string): void {
-    this.clienteNome = nome;
-  }
-
-  setClienteEmail(email: string): void {
-    this.clienteEmail = email;
-  }
-
-  setClienteTelefone(telefone: string): void {
-    this.clienteTelefone = telefone;
-  }
-
-  setTipoPlano(tipoPlano: TipoPlano): void {
-    this.tipoPlano = tipoPlano;
-  }
-
-  setDuracaoMeses(duracaoMeses: number): void {
-    this.duracaoMeses = this.duracaoMeses;
-  }
-
-  setAtivo(ativo: boolean): void {
-    this.ativo = ativo;
+  filtrarPlanosPorNome(clienteNome: string): Plano[] {
+    return this.lista.filter((plano) =>
+      plano.getClienteNome().toLowerCase().includes(clienteNome.toLowerCase())
+    );
   }
 }
